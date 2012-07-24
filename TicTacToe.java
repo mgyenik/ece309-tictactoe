@@ -1,17 +1,21 @@
 import java.awt.Color;
+import javax.swing.Timer;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.*;
 import java.util.HashMap;
+import java.util.Vector;
 
 import javax.swing.*;
 //import javax.swing.border.Border;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 enum Player { NONE, X, O }
+enum Mode	{ BEGINNER, TWO, EXPERT }
 
 public class TicTacToe implements ActionListener, MouseListener, MenuListener{
-
+	
+	private Timer timer = null;
 	private JFrame window = new JFrame("Tic Tac Toe");
 	private JPanel topPanel = new JPanel();
 	private JPanel gamePanel = new JPanel();
@@ -27,7 +31,8 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 	private JButton resetButton = new JButton("Reset Game");
 	private HashMap<JPanel, Player> players = new HashMap<JPanel, Player>();
 	private Player currentPlayer = Player.X;
-	//private Border border = BorderFactory.createLineBorder(Color.BLACK);
+	private Mode mode = Mode.TWO;
+	private Vector<JPanel> takenTiles = new Vector<JPanel>();
 	public TicTacToe() {
 		buildGUI();
 	}
@@ -50,13 +55,6 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 				gamePanel.add(gameTile[i][j]);
 			}
 		}
-		/*
-		for(int i = 0; i < players.length; i++) {
-			for(int j = 0; j < players[0].length; j++) {
-				players[i][j] = Player.NONE;
-			}
-		}
-		*/
 		infoText.setEditable(false);
 		topPanel.setLayout(new GridLayout(1, 3));
 		bottomPanel.add(infoText);
@@ -78,8 +76,9 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 		window.setSize(900,600);
 		window.setVisible(true);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-	
+		timer = new Timer(100, this);
+		timer.start();
+	}	
 	
 	private void drawAllTiles() {
 		for(int i = 0; i < gameTile.length; i++) {
@@ -103,7 +102,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 			g.fillRect(0,0,w,h);
 			break;
 		case O:
-			g.setColor(Color.RED);
+			g.setColor(Color.YELLOW);
 			g.fillRect(0,0,w,h);
 			break;
 		}
@@ -124,43 +123,50 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 
 	@Override
 	public void mouseClicked(MouseEvent me) {
-		//int x = me.getX();
-		//int y = me.getY();
 		JPanel clickedPanel = (JPanel)me.getSource();
 		System.out.println("You clicked -> " + clickedPanel);
+		if(takenTiles.contains(clickedPanel)) {
+			return;
+		}
 		players.put(clickedPanel, currentPlayer);
+		takenTiles.add(clickedPanel);
 		swapPlayers();
-		drawAllTiles();
-		
+		switch(mode){
+		case TWO:
+			return;
+		case BEGINNER:
+			return;
+		case EXPERT:
+			return;
+		default:
+			return;
+		}
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent me) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void mouseExited(MouseEvent me) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void mousePressed(MouseEvent me) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent me) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		// TODO Auto-generated method stub
+		if(ae.getSource() == timer) {
+			drawAllTiles();
+		}
 		if(ae.getSource() == beginner) {
 			infoText.setText("Game reset, now in beginner mode.");
 			return;
@@ -177,20 +183,17 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 
 	@Override
 	public void menuCanceled(MenuEvent arg0) {
-		//System.out.println("Cancelled");
 		
 	}
 
 	@Override
 	public void menuDeselected(MenuEvent arg0) {
 		System.out.println("Deselected");
-		drawAllTiles();
+		timer.start();
 	}
 
 	@Override
 	public void menuSelected(MenuEvent arg0) {
-		//System.out.println("Selected");
-		
+		timer.stop();
 	}
-
 }
