@@ -51,6 +51,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 	private Vector<JPanel> remainingTiles = new Vector<JPanel>();
 	private Image xim = null;
 	private Image oim = null;
+	//private LineBorder border = new LineBorder(Color.BLACK, 3);
 	private static int[][][] wins = {
 		{{1,1,1}, {0,0,0}, {0,0,0}},
 		{{0,0,0}, {1,1,1}, {0,0,0}},
@@ -76,6 +77,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 	private void buildGUI() {
 		GridBagConstraints c = new GridBagConstraints();
 		gamePanel.setLayout(gameGrid);
+		gamePanel.setBackground(Color.GRAY);
 		// --- Fill in tiles with actual JPanels ---
 		for(int i = 0; i < gameTile.length; i++) {
 			for(int j = 0; j < gameTile[0].length; j++) {
@@ -89,7 +91,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 				c.gridy = i;
 				c.gridwidth = 1;
 		        c.gridheight = 1;
-		        //gameTile[i][j].setBorder(new LineBorder(Color.BLACK, 3));
+		        //gameTile[i][j].setBorder(border);
 				gameGrid.setConstraints(gameTile[i][j], c);
 				gamePanel.add(gameTile[i][j]);
 				remainingTiles.add(gameTile[i][j]);
@@ -142,6 +144,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		for(int i = 0; i < gameTile.length; i++) {
 			for(int j = 0; j < gameTile[0].length; j++) {
 				setTile(gameTile[i][j], players.get(gameTile[i][j]));
+				//gameTile[i][j].setBorder(border);
 			}
 		}
 	}
@@ -168,7 +171,6 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 	}
 	
 	private void printstate() {
-		int[][] checkarr = new int[3][3];
 		System.out.println("GAME STATE:");
 		String out = "";
 		for(int i = 0; i < gameTile.length; i++) {
