@@ -57,6 +57,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 		}
 		infoText.setEditable(false);
 		topPanel.setLayout(new GridLayout(1, 3));
+		topPanel.add(resetButton);
 		bottomPanel.add(infoText);
 		
 		beginner.addActionListener(this);
@@ -84,6 +85,14 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 		for(int i = 0; i < gameTile.length; i++) {
 			for(int j = 0; j < gameTile[0].length; j++) {
 				setTile(gameTile[i][j], players.get(gameTile[i][j]));
+			}
+		}
+	}
+	
+	private void reset() {
+		for(int i = 0; i < gameTile.length; i++) {
+			for(int j = 0; j < gameTile[0].length; j++) {
+				players.put(gameTile[i][j], Player.NONE);
 			}
 		}
 	}
@@ -166,16 +175,27 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 		// TODO Auto-generated method stub
 		if(ae.getSource() == timer) {
 			drawAllTiles();
+			return;
+		}
+		if(ae.getSource() == resetButton) {
+			reset();
+			infoText.setText("Game reset.");
 		}
 		if(ae.getSource() == beginner) {
+			reset();
+			mode = Mode.BEGINNER;
 			infoText.setText("Game reset, now in beginner mode.");
 			return;
 		}
 		if(ae.getSource() == twoPlayer) {
+			reset();
+			mode = Mode.TWO;
 			infoText.setText("Game reset, now in two player mode. Take turns selecting squares. X goes first.");
 			return;
 		}
 		if(ae.getSource() == expert) {
+			mode = Mode.EXPERT;
+			reset();
 			infoText.setText("Game reset, now in expert mode.");
 			return;
 		}
