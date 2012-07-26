@@ -4,6 +4,8 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.*;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 
 import javax.swing.*;
@@ -31,7 +33,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 	private JButton resetButton = new JButton("Reset Game");
 	private HashMap<JPanel, Player> players = new HashMap<JPanel, Player>();
 	private Player currentPlayer = Player.X;
-	private Mode mode = Mode.TWO;
+	private Mode mode = Mode.BEGINNER;
 	private Vector<JPanel> takenTiles = new Vector<JPanel>();
 	public TicTacToe() {
 		buildGUI();
@@ -124,7 +126,6 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 	@Override
 	public void mouseClicked(MouseEvent me) {
 		JPanel clickedPanel = (JPanel)me.getSource();
-		System.out.println("You clicked -> " + clickedPanel);
 		if(takenTiles.contains(clickedPanel)) {
 			return;
 		}
@@ -135,6 +136,19 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 		case TWO:
 			return;
 		case BEGINNER:
+			System.out.println("Beginner");
+			JPanel tmp = null;
+			Random rand = new Random();
+			int rx = 0;
+			int ry = 0;
+			do {
+				rx = rand.nextInt(3);
+				ry = rand.nextInt(3);
+				tmp = gameTile[rx][ry];
+			}while(takenTiles.contains(tmp));
+			takenTiles.add(tmp);
+			players.put(tmp, currentPlayer);
+			swapPlayers();
 			return;
 		case EXPERT:
 			return;
@@ -168,14 +182,17 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener{
 			drawAllTiles();
 		}
 		if(ae.getSource() == beginner) {
+			mode = Mode.BEGINNER;
 			infoText.setText("Game reset, now in beginner mode.");
 			return;
 		}
 		if(ae.getSource() == twoPlayer) {
+			mode = Mode.TWO;
 			infoText.setText("Game reset, now in two player mode. Take turns selecting squares. X goes first.");
 			return;
 		}
 		if(ae.getSource() == expert) {
+			mode = Mode.EXPERT;
 			infoText.setText("Game reset, now in expert mode.");
 			return;
 		}
