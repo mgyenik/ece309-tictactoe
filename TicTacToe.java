@@ -12,6 +12,7 @@ import java.awt.Image;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 	private JButton resetButton = new JButton("Reset Game");
 	private HashMap<JPanel, Player> players = new HashMap<JPanel, Player>();
 	private Player currentPlayer = Player.X;
-	private Mode mode = Mode.BEGINNER;
+	private Mode mode = Mode.EXPERT;
 	private JDialog winnerDialog = new JDialog();
 	private JLabel winnerLabel = new JLabel("Winner!");
 	private JButton winnerButton = new JButton("OK");
@@ -170,21 +171,29 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		return false;
 	}
 	
-	private void printstate() {
+	private void printState() {
 		System.out.println("GAME STATE:");
 		String out = "";
 		for(int i = 0; i < gameTile.length; i++) {
 			for(int j = 0; j < gameTile[0].length; j++) {
-				if(players.get(gameTile[i][j]) == currentPlayer) {
+				if(players.get(gameTile[i][j]) == currentPlayer)
 					out += "1 ";
-				}
-				else {
+				else
 					out += "0 ";
-				}
 			}
 			out += "\r\n";
 		}
 		System.out.println(out);
+	}
+	
+	private Player[][] getPlayerState() {
+		Player[][] arr = new Player[3][3];
+		for(int i = 0; i < arr.length; i++) {
+			for(int j = 0; j < arr[0].length; j++) {
+				arr[i][j] = players.get(gameTile[i][j]);
+			}
+		}
+		return arr;
 	}
 	
 	private boolean arrmatch(int[][] a, int[][] b) {
@@ -291,13 +300,11 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		// TODO Auto-generated method stub
 		if(ae.getSource() == timer) {
 			drawAllTiles();
 			return;
 		}
 		if(ae.getSource() == resetButton) {
-			printstate();
 			reset();
 			infoText.setText("Game reset.");
 		}
@@ -326,6 +333,64 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 			return;
 		}
 	}
+	
+	private JPanel pickBestTile(Vector<JPanel> spacesLeft, Player p, JPanel[][] t, HashMap<JPanel, Player> pls) {//private JPanel[][] gameTile = new JPanel[3][3];HashMap<JPanel, Player> b) {
+		//HashMap<JPanel, Player> board = (HashMap<JPanel, Player>)b.clone();
+		@SuppressWarnings("unchecked")
+		Vector<JPanel> rem = (Vector<JPanel>)spacesLeft.clone();
+		JPanel[][] tiles = t.clone();
+		HashMap<JPanel, Player> plrs = (HashMap<JPanel, Player>)pls.clone();
+		JPanel moveToTest = rem.remove(0);
+		int score = (p == Player.O) ? 1 : (p == Player.NONE) ? 1 : 0; //F^CK YEAH TERNARY OPERATORS
+		if(checkForArbitraryWin(tiles, p)) {
+			
+		}
+		return new JPanel();
+	}
+	
+	private boolean checkForArbitraryWin(JPanel[][] tiles, Player p) {
+		int[][] checkarr = new int[3][3];
+		for(int i = 0; i < tiles.length; i++) {
+			for(int j = 0; j < tiles[0].length; j++) {
+				if(players.get(gameTile[i][j]) == p) {
+					checkarr[i][j] = 1;
+				}
+				else {
+					checkarr[i][j] = 0;
+				}
+			}
+		}
+		for(int[][] win : wins) {
+			if(arrmatch(win, checkarr))
+				return true;
+		}
+		return false;
+	}
+	
+	/*private int countInts(int[][] arr, int k) {
+		int count = 0;
+		for(int i = 0; i < arr.length; i++) {
+			for(int j = 0; j < arr[0].length; j++) {
+				if(arr[i][j] == k)
+					count += 1;
+			}
+		}
+		return count;
+	}*/
+	
+	/*private Vector<int[][]> getMoves() {
+		Vector<int[][]> ret = new Vector<int[][]>();
+		int[][] arr = new int[3][3];
+		for(int i = 0; i < gameTile.length; i++) {
+			for(int j = 0; j < gameTile[0].length; j++) {
+				if(players.get(gameTile[i][j]) == currentPlayer)
+					arr[i][j] = 1;
+				else
+					arr[i][j] = 1;
+			}
+		}
+		return ret;
+	}*/
 
 	@Override
 	public void menuCanceled(MenuEvent arg0) {
@@ -367,19 +432,4 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		}
 		
 	}
-}
-
-class RefreshingPicturePanel extends JPanel
-{
-private Image im;
-	  
-public RefreshingPicturePanel(Image imageToShow) {
-	im = imageToShow;  
-  }
-	  
-@Override
-public void paint(Graphics g) {
-	g.drawImage(im,0,0,this);
-  }
-
 }
