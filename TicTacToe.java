@@ -28,7 +28,6 @@ enum Player { NONE, X, O }
 enum Mode	{ BEGINNER, TWO, EXPERT }
 
 public class TicTacToe implements ActionListener, MouseListener, MenuListener, Runnable {
-	
 	private Timer timer = null;
 	private JFrame window = new JFrame("Tic Tac Toe");
 	private JPanel topPanel = new JPanel();
@@ -52,6 +51,8 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 	private Vector<JPanel> remainingTiles = new Vector<JPanel>();
 	private Image xim = null;
 	private Image oim = null;
+	private JPanel bestTile = null;
+	private int bestScore = -3000;
 	//private LineBorder border = new LineBorder(Color.BLACK, 3);
 	private static int[][][] wins = {
 		{{1,1,1}, {0,0,0}, {0,0,0}},
@@ -186,16 +187,6 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		System.out.println(out);
 	}
 	
-	private Player[][] getPlayerState() {
-		Player[][] arr = new Player[3][3];
-		for(int i = 0; i < arr.length; i++) {
-			for(int j = 0; j < arr[0].length; j++) {
-				arr[i][j] = players.get(gameTile[i][j]);
-			}
-		}
-		return arr;
-	}
-	
 	private boolean arrmatch(int[][] a, int[][] b) {
 		int out = 0;
 		for(int i = 0; i < gameTile.length; i++) {
@@ -205,14 +196,12 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 				}
 			}
 		}
-		if(out == 3)
-			return true;
-		else
-			return false;
+		return (out == 3);
 	}
 	
 	private void reset() {
 		remainingTiles = new Vector<JPanel>();
+		currentPlayer = Player.X;
 		for(int i = 0; i < gameTile.length; i++) {
 			for(int j = 0; j < gameTile[0].length; j++) {
 				players.put(gameTile[i][j], Player.NONE);
@@ -240,16 +229,7 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 	}
 
 	private void swapPlayers() {
-		if(currentPlayer == Player.X) {
-			currentPlayer = Player.O;
-		}
-		else if(currentPlayer == Player.O) {
-			currentPlayer = Player.X;
-		}
-		else {
-			currentPlayer = Player.NONE;
-			System.out.println("something weird happened while swapping players");
-		}
+		currentPlayer = swap(currentPlayer);
 	}
 	
 	private void declareWinner() {
@@ -334,30 +314,47 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		}
 	}
 	
-	private JPanel pickBestTile(Vector<JPanel> spacesLeft, Player p, JPanel[][] t, HashMap<JPanel, Player> pls) {//private JPanel[][] gameTile = new JPanel[3][3];HashMap<JPanel, Player> b) {
-		//HashMap<JPanel, Player> board = (HashMap<JPanel, Player>)b.clone();
+	private JPanel blok(Vector<JPanel> spacesLeft, Player p, HashMap<JPanel, Player> pls) {
 		@SuppressWarnings("unchecked")
 		Vector<JPanel> rem = (Vector<JPanel>)spacesLeft.clone();
-		JPanel[][] tiles = t.clone();
-		HashMap<JPanel, Player> plrs = (HashMap<JPanel, Player>)pls.clone();
-		JPanel moveToTest = rem.remove(0);
-		int score = (p == Player.O) ? 1 : (p == Player.NONE) ? 1 : 0; //F^CK YEAH TERNARY OPERATORS
-		if(checkForArbitraryWin(tiles, p)) {
-			
+		for(JPanel move : rem) {
+			System.out.println("---checking for winz");
+			HashMap<JPanel, Player> plrs = (HashMap<JPanel, Player>)pls.clone();
+			plrs.put(move, p);
+			if(checkForArbitraryWin(gameTile, p, plrs))
+				return move;
 		}
-		return new JPanel();
+		for(JPanel move : rem) {
+			System.out.println("---checking for blox");
+			HashMap<JPanel, Player> plrs = (HashMap<JPanel, Player>)pls.clone();
+			plrs.put(move, swap(p));
+			if(checkForArbitraryWin(gameTile, swap(p), plrs))
+				return move;
+		}
+		return null;
 	}
 	
-	private boolean checkForArbitraryWin(JPanel[][] tiles, Player p) {
+	private Player swap(Player p) {
+		if(currentPlayer == Player.X) {
+			return Player.O;
+		}
+		else if(currentPlayer == Player.O) {
+			return Player.X;
+		}
+		else {
+			System.out.println("something weird happened while swapping players");
+			return Player.NONE;
+		}
+	}
+	
+	private boolean checkForArbitraryWin(JPanel[][] tiles, Player p, HashMap<JPanel, Player> pls) {
 		int[][] checkarr = new int[3][3];
 		for(int i = 0; i < tiles.length; i++) {
 			for(int j = 0; j < tiles[0].length; j++) {
-				if(players.get(gameTile[i][j]) == p) {
+				if(pls.get(tiles[i][j]) == p)
 					checkarr[i][j] = 1;
-				}
-				else {
+				else
 					checkarr[i][j] = 0;
-				}
 			}
 		}
 		for(int[][] win : wins) {
@@ -367,31 +364,6 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		return false;
 	}
 	
-	/*private int countInts(int[][] arr, int k) {
-		int count = 0;
-		for(int i = 0; i < arr.length; i++) {
-			for(int j = 0; j < arr[0].length; j++) {
-				if(arr[i][j] == k)
-					count += 1;
-			}
-		}
-		return count;
-	}*/
-	
-	/*private Vector<int[][]> getMoves() {
-		Vector<int[][]> ret = new Vector<int[][]>();
-		int[][] arr = new int[3][3];
-		for(int i = 0; i < gameTile.length; i++) {
-			for(int j = 0; j < gameTile[0].length; j++) {
-				if(players.get(gameTile[i][j]) == currentPlayer)
-					arr[i][j] = 1;
-				else
-					arr[i][j] = 1;
-			}
-		}
-		return ret;
-	}*/
-
 	@Override
 	public void menuCanceled(MenuEvent arg0) {
 		
@@ -414,7 +386,6 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 		case TWO:
 			return;
 		case BEGINNER:
-			System.out.println("Beginner");
 			if(remainingTiles.size() == 0) {
 				return;
 			}
@@ -426,10 +397,26 @@ public class TicTacToe implements ActionListener, MouseListener, MenuListener, R
 			swapPlayers();
 			return;
 		case EXPERT:
+			printState();
+			JPanel picked = blok(remainingTiles, currentPlayer, players);
+			if(picked != null) {
+				remainingTiles.remove(picked);
+				players.put(picked, currentPlayer);
+			}
+			else {
+				if(remainingTiles.size() == 0) {
+					winnerLabel.setText("TIE");
+					winnerDialog.setVisible(true);
+					return;
+				}
+				players.put(remainingTiles.remove(0), currentPlayer);
+			}
+			checkForWin();
+			swapPlayers();
+			bestTile = new JPanel();
 			return;
 		default:
 			return;
 		}
-		
 	}
 }
